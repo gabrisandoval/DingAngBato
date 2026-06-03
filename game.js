@@ -11,11 +11,378 @@ const SPEED_INCREMENT = 0.4;
 const SCORE_MILESTONE = 500;
 
 // ─── DOM refs ────────────────────────────────────────────────────
-const scoreEl    = document.getElementById('score');
-const hiScoreEl  = document.getElementById('hi-score');
-const overlay    = document.getElementById('overlay');
-const gameoverEl = document.getElementById('gameover-overlay');
-const goScoreEl  = document.getElementById('gameover-score');
+const scoreEl      = document.getElementById('score');
+const hiScoreEl    = document.getElementById('hi-score');
+const homeOverlay  = document.getElementById('home-overlay');
+const charOverlay  = document.getElementById('character-overlay');
+const gameoverEl   = document.getElementById('gameover-overlay');
+const goScoreEl    = document.getElementById('gameover-score');
+
+// ─── Character draw functions ────────────────────────────────────
+
+function drawTao(c, px, py, w, h) {
+  const legOffset = Math.sin(Date.now() / 80) * 6;
+  c.fillStyle = '#5a3e1b';
+  c.fillRect(px + 5,  py + h - 14, 8, 14 + legOffset);
+  c.fillRect(px + 17, py + h - 14, 8, 14 - legOffset);
+
+  c.fillStyle = '#c87941';
+  c.fillRect(px, py + 18, w, h - 22);
+
+  c.fillStyle = '#e8a96a';
+  c.beginPath();
+  c.ellipse(px + w / 2, py + 12, 13, 14, 0, 0, Math.PI * 2);
+  c.fill();
+
+  c.fillStyle = '#1a1a2e';
+  c.beginPath();
+  c.arc(px + w / 2 + 4, py + 10, 3, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = '#fff';
+  c.beginPath();
+  c.arc(px + w / 2 + 5, py + 9, 1, 0, Math.PI * 2);
+  c.fill();
+
+  c.strokeStyle = '#c87941';
+  c.lineWidth = 5;
+  c.lineCap = 'round';
+  const armSwing = Math.sin(Date.now() / 80) * 8;
+  c.beginPath();
+  c.moveTo(px + 2, py + 24);
+  c.lineTo(px - 8, py + 32 + armSwing);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(px + w - 2, py + 24);
+  c.lineTo(px + w + 8, py + 32 - armSwing);
+  c.stroke();
+}
+
+function drawMandirigma(c, px, py, w, h) {
+  const legOffset = Math.sin(Date.now() / 80) * 6;
+  // Legs with armor boots
+  c.fillStyle = '#4a1010';
+  c.fillRect(px + 4,  py + h - 14, 9, 14 + legOffset);
+  c.fillRect(px + 17, py + h - 14, 9, 14 - legOffset);
+  c.fillStyle = '#7a1515';
+  c.fillRect(px + 4,  py + h - 6, 9, 6);
+  c.fillRect(px + 17, py + h - 6, 9, 6);
+
+  // Body armor
+  c.fillStyle = '#8b1a1a';
+  c.fillRect(px, py + 18, w, h - 22);
+  c.fillStyle = '#c0392b';
+  c.fillRect(px + 4, py + 20, w - 8, 6);
+
+  // Neck
+  c.fillStyle = '#c87941';
+  c.fillRect(px + 10, py + 14, 10, 6);
+
+  // Helmet
+  c.fillStyle = '#5a5a5a';
+  c.beginPath();
+  c.ellipse(px + w / 2, py + 10, 14, 13, 0, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = '#888';
+  c.fillRect(px + 2, py + 6, w - 4, 5);
+  // Visor slit
+  c.fillStyle = '#ff4444';
+  c.fillRect(px + 5, py + 9, w - 10, 3);
+
+  // Helmet horns
+  c.fillStyle = '#aaa';
+  c.beginPath();
+  c.moveTo(px + 4, py + 5);
+  c.lineTo(px, py - 4);
+  c.lineTo(px + 8, py + 3);
+  c.fill();
+  c.beginPath();
+  c.moveTo(px + w - 4, py + 5);
+  c.lineTo(px + w, py - 4);
+  c.lineTo(px + w - 8, py + 3);
+  c.fill();
+
+  // Arms + shield
+  c.strokeStyle = '#8b1a1a';
+  c.lineWidth = 6;
+  c.lineCap = 'round';
+  const armSwing = Math.sin(Date.now() / 80) * 8;
+  c.beginPath();
+  c.moveTo(px + 2, py + 24);
+  c.lineTo(px - 8, py + 32 + armSwing);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(px + w - 2, py + 24);
+  c.lineTo(px + w + 8, py + 32 - armSwing);
+  c.stroke();
+  // Shield on left arm
+  c.fillStyle = '#7a1515';
+  c.fillRect(px - 14, py + 26 + armSwing, 10, 14);
+  c.strokeStyle = '#c0392b';
+  c.lineWidth = 1;
+  c.strokeRect(px - 14, py + 26 + armSwing, 10, 14);
+}
+
+function drawEngkanto(c, px, py, w, h) {
+  const legOffset = Math.sin(Date.now() / 80) * 6;
+  // Legs
+  c.fillStyle = '#1a4a2a';
+  c.fillRect(px + 5,  py + h - 14, 8, 14 + legOffset);
+  c.fillRect(px + 17, py + h - 14, 8, 14 - legOffset);
+
+  // Body (robe)
+  c.fillStyle = '#2d6e3f';
+  c.fillRect(px - 2, py + 18, w + 4, h - 22);
+
+  // Leaf details on body
+  c.fillStyle = '#45a060';
+  c.beginPath();
+  c.ellipse(px + 8, py + 26, 5, 3, -0.4, 0, Math.PI * 2);
+  c.fill();
+  c.beginPath();
+  c.ellipse(px + w - 6, py + 30, 5, 3, 0.4, 0, Math.PI * 2);
+  c.fill();
+
+  // Head
+  c.fillStyle = '#a8d8a0';
+  c.beginPath();
+  c.ellipse(px + w / 2, py + 12, 13, 14, 0, 0, Math.PI * 2);
+  c.fill();
+
+  // Pointed ears
+  c.fillStyle = '#a8d8a0';
+  c.beginPath();
+  c.moveTo(px + 2, py + 8);
+  c.lineTo(px - 6, py + 1);
+  c.lineTo(px + 6, py + 10);
+  c.fill();
+  c.beginPath();
+  c.moveTo(px + w - 2, py + 8);
+  c.lineTo(px + w + 6, py + 1);
+  c.lineTo(px + w - 6, py + 10);
+  c.fill();
+
+  // Glowing eyes
+  c.fillStyle = '#00ff88';
+  c.shadowColor = '#00ff88';
+  c.shadowBlur = 8;
+  c.beginPath();
+  c.ellipse(px + w / 2 - 3, py + 11, 3, 3, 0, 0, Math.PI * 2);
+  c.fill();
+  c.beginPath();
+  c.ellipse(px + w / 2 + 5, py + 11, 3, 3, 0, 0, Math.PI * 2);
+  c.fill();
+  c.shadowBlur = 0;
+
+  // Hair/leaves on head
+  c.fillStyle = '#1a4a2a';
+  for (let i = 0; i < 4; i++) {
+    c.beginPath();
+    c.ellipse(px + 6 + i * 6, py + 1, 4, 7, -0.2 + i * 0.15, 0, Math.PI * 2);
+    c.fill();
+  }
+
+  // Arms with glow
+  c.strokeStyle = '#2d6e3f';
+  c.lineWidth = 5;
+  c.lineCap = 'round';
+  const armSwing = Math.sin(Date.now() / 80) * 8;
+  c.beginPath();
+  c.moveTo(px + 2, py + 24);
+  c.lineTo(px - 8, py + 32 + armSwing);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(px + w - 2, py + 24);
+  c.lineTo(px + w + 8, py + 32 - armSwing);
+  c.stroke();
+  // Sparkles at hands
+  c.fillStyle = '#00ff88';
+  c.shadowColor = '#00ff88';
+  c.shadowBlur = 6;
+  c.beginPath();
+  c.arc(px - 8, py + 32 + armSwing, 3, 0, Math.PI * 2);
+  c.fill();
+  c.shadowBlur = 0;
+}
+
+function drawRoboto(c, px, py, w, h) {
+  const legOffset = Math.sin(Date.now() / 80) * 6;
+  // Mechanical legs
+  c.fillStyle = '#555';
+  c.fillRect(px + 4,  py + h - 14, 10, 14 + legOffset);
+  c.fillRect(px + 16, py + h - 14, 10, 14 - legOffset);
+  c.fillStyle = '#777';
+  c.fillRect(px + 6,  py + h - 8, 6, 8 + legOffset);
+  c.fillRect(px + 18, py + h - 8, 6, 8 - legOffset);
+
+  // Body (rectangular chassis)
+  c.fillStyle = '#4a4a5a';
+  c.fillRect(px, py + 18, w, h - 22);
+  c.fillStyle = '#606070';
+  c.fillRect(px + 2, py + 20, w - 4, 3);
+  // Panel lines
+  c.strokeStyle = '#888';
+  c.lineWidth = 1;
+  c.strokeRect(px + 4, py + 25, w - 8, 10);
+  // Chest LED
+  c.fillStyle = '#00cfff';
+  c.shadowColor = '#00cfff';
+  c.shadowBlur = 8;
+  c.fillRect(px + 11, py + 27, 8, 6);
+  c.shadowBlur = 0;
+
+  // Neck
+  c.fillStyle = '#555';
+  c.fillRect(px + 10, py + 14, 10, 6);
+
+  // Head (square)
+  c.fillStyle = '#4a4a5a';
+  c.fillRect(px + 2, py + 1, w - 4, 15);
+  c.fillStyle = '#606070';
+  c.fillRect(px + 2, py + 1, w - 4, 3);
+
+  // Antennae
+  c.strokeStyle = '#888';
+  c.lineWidth = 2;
+  c.beginPath();
+  c.moveTo(px + 8, py + 2);
+  c.lineTo(px + 5, py - 7);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(px + w - 8, py + 2);
+  c.lineTo(px + w - 5, py - 7);
+  c.stroke();
+  c.fillStyle = '#00cfff';
+  c.shadowColor = '#00cfff';
+  c.shadowBlur = 6;
+  c.beginPath();
+  c.arc(px + 5, py - 7, 3, 0, Math.PI * 2);
+  c.fill();
+  c.beginPath();
+  c.arc(px + w - 5, py - 7, 3, 0, Math.PI * 2);
+  c.fill();
+  c.shadowBlur = 0;
+
+  // Eyes (LED panels)
+  c.fillStyle = '#00cfff';
+  c.shadowColor = '#00cfff';
+  c.shadowBlur = 8;
+  c.fillRect(px + 5, py + 6, 7, 5);
+  c.fillRect(px + w - 12, py + 6, 7, 5);
+  c.shadowBlur = 0;
+
+  // Arms (mechanical)
+  c.strokeStyle = '#555';
+  c.lineWidth = 7;
+  c.lineCap = 'square';
+  const armSwing = Math.sin(Date.now() / 80) * 8;
+  c.beginPath();
+  c.moveTo(px + 2, py + 22);
+  c.lineTo(px - 8, py + 30 + armSwing);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(px + w - 2, py + 22);
+  c.lineTo(px + w + 8, py + 30 - armSwing);
+  c.stroke();
+}
+
+function drawAswang(c, px, py, w, h) {
+  const legOffset = Math.sin(Date.now() / 80) * 6;
+  // Clawed legs
+  c.fillStyle = '#2a1040';
+  c.fillRect(px + 5,  py + h - 14, 8, 14 + legOffset);
+  c.fillRect(px + 17, py + h - 14, 8, 14 - legOffset);
+  // Claws
+  c.strokeStyle = '#6a30a0';
+  c.lineWidth = 2;
+  c.lineCap = 'round';
+  [px + 5, px + 9, px + 13].forEach(cx => {
+    c.beginPath();
+    c.moveTo(cx, py + h);
+    c.lineTo(cx - 2, py + h + 5);
+    c.stroke();
+  });
+  [px + 17, px + 21, px + 25].forEach(cx => {
+    c.beginPath();
+    c.moveTo(cx, py + h);
+    c.lineTo(cx - 2, py + h + 5);
+    c.stroke();
+  });
+
+  // Body (tattered robe)
+  c.fillStyle = '#3a1060';
+  c.fillRect(px - 2, py + 18, w + 4, h - 22);
+  // Tattered edges
+  c.fillStyle = '#2a1040';
+  for (let i = 0; i < 5; i++) {
+    c.beginPath();
+    c.moveTo(px - 2 + i * 8, py + h - 8);
+    c.lineTo(px + i * 8 + 2, py + h + 4);
+    c.lineTo(px + 6 + i * 7, py + h - 8);
+    c.fill();
+  }
+
+  // Dark aura
+  c.fillStyle = '#6a30a022';
+  c.beginPath();
+  c.ellipse(px + w / 2, py + h / 2, w, h / 2, 0, 0, Math.PI * 2);
+  c.fill();
+
+  // Head
+  c.fillStyle = '#5a2080';
+  c.beginPath();
+  c.ellipse(px + w / 2, py + 12, 14, 15, 0, 0, Math.PI * 2);
+  c.fill();
+
+  // Glowing red eyes
+  c.fillStyle = '#ff1a1a';
+  c.shadowColor = '#ff1a1a';
+  c.shadowBlur = 10;
+  c.beginPath();
+  c.ellipse(px + w / 2 - 4, py + 10, 4, 3, 0.2, 0, Math.PI * 2);
+  c.fill();
+  c.beginPath();
+  c.ellipse(px + w / 2 + 6, py + 10, 4, 3, -0.2, 0, Math.PI * 2);
+  c.fill();
+  c.shadowBlur = 0;
+
+  // Fangs
+  c.fillStyle = '#e0d0ff';
+  c.beginPath();
+  c.moveTo(px + w / 2 - 4, py + 18);
+  c.lineTo(px + w / 2 - 2, py + 23);
+  c.lineTo(px + w / 2,     py + 18);
+  c.fill();
+  c.beginPath();
+  c.moveTo(px + w / 2 + 2, py + 18);
+  c.lineTo(px + w / 2 + 4, py + 23);
+  c.lineTo(px + w / 2 + 6, py + 18);
+  c.fill();
+
+  // Wings
+  const wingFlap = Math.sin(Date.now() / 120) * 12;
+  c.fillStyle = '#2a1040cc';
+  c.beginPath();
+  c.moveTo(px + 4, py + 22);
+  c.quadraticCurveTo(px - 20, py + 10 - wingFlap, px - 30, py + 28);
+  c.quadraticCurveTo(px - 15, py + 32, px + 4, py + 30);
+  c.fill();
+  c.beginPath();
+  c.moveTo(px + w - 4, py + 22);
+  c.quadraticCurveTo(px + w + 20, py + 10 - wingFlap, px + w + 30, py + 28);
+  c.quadraticCurveTo(px + w + 15, py + 32, px + w - 4, py + 30);
+  c.fill();
+}
+
+// ─── Characters registry ─────────────────────────────────────────
+const CHARACTERS = [
+  { name: 'Tao',        draw: drawTao },
+  { name: 'Mandirigma', draw: drawMandirigma },
+  { name: 'Engkanto',   draw: drawEngkanto },
+  { name: 'Roboto',     draw: drawRoboto },
+  { name: 'Aswang',     draw: drawAswang },
+];
+
+let selectedCharacter = parseInt(localStorage.getItem('batoCharacter') || '0');
 
 // ─── Player ──────────────────────────────────────────────────────
 const player = {
@@ -47,48 +414,7 @@ const player = {
   },
 
   draw() {
-    const px = this.x;
-    const py = this.y - this.h;
-
-    // Legs (animated)
-    const legOffset = Math.sin(Date.now() / 80) * 6;
-    ctx.fillStyle = '#5a3e1b';
-    ctx.fillRect(px + 5,  py + this.h - 14, 8, 14 + legOffset);
-    ctx.fillRect(px + 17, py + this.h - 14, 8, 14 - legOffset);
-
-    // Body
-    ctx.fillStyle = '#c87941';
-    ctx.fillRect(px, py + 18, this.w, this.h - 22);
-
-    // Head
-    ctx.fillStyle = '#e8a96a';
-    ctx.beginPath();
-    ctx.ellipse(px + this.w / 2, py + 12, 13, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Eyes
-    ctx.fillStyle = '#1a1a2e';
-    ctx.beginPath();
-    ctx.arc(px + this.w / 2 + 4, py + 10, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(px + this.w / 2 + 5, py + 9, 1, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Arms
-    ctx.strokeStyle = '#c87941';
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'round';
-    const armSwing = Math.sin(Date.now() / 80) * 8;
-    ctx.beginPath();
-    ctx.moveTo(px + 2, py + 24);
-    ctx.lineTo(px - 8, py + 32 + armSwing);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(px + this.w - 2, py + 24);
-    ctx.lineTo(px + this.w + 8, py + 32 - armSwing);
-    ctx.stroke();
+    CHARACTERS[selectedCharacter].draw(ctx, this.x, this.y - this.h, this.w, this.h);
   },
 
   getBounds() {
@@ -145,7 +471,6 @@ class Rock {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Highlight crack
     ctx.strokeStyle = '#9a9a9a55';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -161,7 +486,7 @@ class Rock {
   }
 }
 
-// ─── Ground decoration ───────────────────────────────────────────
+// ─── Ground & Background ─────────────────────────────────────────
 const pebbles = Array.from({ length: 20 }, () => ({
   x: Math.random() * W,
   r: 2 + Math.random() * 3,
@@ -169,22 +494,18 @@ const pebbles = Array.from({ length: 20 }, () => ({
 }));
 
 function drawGround(speed) {
-  // Scroll pebbles
   pebbles.forEach(p => {
     p.x -= speed * 0.4;
     if (p.x < -10) p.x = W + 10;
   });
-
   ctx.fillStyle = '#3d2b1a';
   ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
-
   ctx.strokeStyle = '#e0c97f44';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(0, GROUND_Y);
   ctx.lineTo(W, GROUND_Y);
   ctx.stroke();
-
   ctx.fillStyle = '#5a4030';
   pebbles.forEach(p => {
     ctx.beginPath();
@@ -193,7 +514,6 @@ function drawGround(speed) {
   });
 }
 
-// ─── Stars background ─────────────────────────────────────────────
 const stars = Array.from({ length: 60 }, () => ({
   x: Math.random() * W,
   y: Math.random() * GROUND_Y * 0.9,
@@ -204,7 +524,6 @@ const stars = Array.from({ length: 60 }, () => ({
 function drawBackground(speed) {
   ctx.fillStyle = '#0f0f1a';
   ctx.fillRect(0, 0, W, H);
-
   ctx.fillStyle = '#ffffff88';
   stars.forEach(s => {
     s.x -= s.speed * (speed / BASE_SPEED);
@@ -215,14 +534,14 @@ function drawBackground(speed) {
   });
 }
 
-// ─── AABB collision ───────────────────────────────────────────────
+// ─── Collision ───────────────────────────────────────────────────
 function collides(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x &&
          a.y < b.y + b.h && a.y + a.h > b.y;
 }
 
 // ─── Game state ───────────────────────────────────────────────────
-let state = 'idle';
+let state = 'home';
 let rocks = [];
 let score = 0;
 let hiScore = parseInt(localStorage.getItem('batoHiScore') || '0');
@@ -234,8 +553,25 @@ let lastMilestone = 0;
 
 hiScoreEl.textContent = hiScore;
 
-function spawnRock() {
-  rocks.push(new Rock(speed));
+// ─── Navigation ──────────────────────────────────────────────────
+function hideAll() {
+  homeOverlay.classList.remove('visible');
+  charOverlay.classList.remove('visible');
+  gameoverEl.classList.remove('visible');
+}
+
+function goHome() {
+  hideAll();
+  state = 'home';
+  homeOverlay.classList.add('visible');
+  renderPreviewsIfNeeded();
+}
+
+function showCharacterSelect() {
+  hideAll();
+  state = 'character_select';
+  charOverlay.classList.add('visible');
+  updateCardHighlight();
 }
 
 function resetGame() {
@@ -254,9 +590,8 @@ function resetGame() {
 
 function startGame() {
   resetGame();
+  hideAll();
   state = 'running';
-  overlay.classList.remove('visible');
-  gameoverEl.classList.remove('visible');
   if (frameId) cancelAnimationFrame(frameId);
   loop();
 }
@@ -276,7 +611,6 @@ function endGame() {
 function loop() {
   frameId = requestAnimationFrame(loop);
 
-  // Update
   if (state === 'running') {
     score++;
     scoreEl.textContent = score;
@@ -294,7 +628,7 @@ function loop() {
     spawnTimer++;
     if (spawnTimer >= spawnInterval + (Math.random() * 30 | 0)) {
       spawnTimer = 0;
-      spawnRock();
+      rocks.push(new Rock(speed));
     }
 
     rocks.forEach(r => r.update());
@@ -309,38 +643,69 @@ function loop() {
     }
   }
 
-  // Render
-  drawBackground(speed);
+  drawBackground(state === 'running' ? speed : BASE_SPEED);
   drawGround(state === 'running' ? speed : 0);
   rocks.forEach(r => r.draw());
   player.draw();
 }
 
-// ─── Input ────────────────────────────────────────────────────────
-function handleInput() {
-  if (state === 'idle' || state === 'over') {
-    startGame();
-  } else if (state === 'running') {
-    player.jump();
-  }
-}
-
+// ─── Input (keyboard/touch only for jump during gameplay) ────────
 document.addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     e.preventDefault();
-    handleInput();
+    if (state === 'running') player.jump();
   }
+  if (e.code === 'Escape' && state === 'character_select') goHome();
 });
 
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
-  handleInput();
+  if (state === 'running') player.jump();
 }, { passive: false });
 
-document.getElementById('overlay').addEventListener('click', handleInput);
-document.getElementById('gameover-overlay').addEventListener('click', handleInput);
+// ─── Button events ────────────────────────────────────────────────
+document.getElementById('btn-start').addEventListener('click', startGame);
+document.getElementById('btn-choose').addEventListener('click', showCharacterSelect);
+document.getElementById('btn-back').addEventListener('click', goHome);
+document.getElementById('btn-retry').addEventListener('click', startGame);
+document.getElementById('btn-home').addEventListener('click', goHome);
 
-// ─── Initial render (idle frame) ─────────────────────────────────
-drawBackground(BASE_SPEED);
-drawGround(0);
-player.draw();
+// ─── Character selection cards ────────────────────────────────────
+function updateCardHighlight() {
+  document.querySelectorAll('.char-card').forEach(card => {
+    card.classList.toggle('selected', parseInt(card.dataset.id) === selectedCharacter);
+  });
+}
+
+document.querySelectorAll('.char-card').forEach(card => {
+  card.addEventListener('click', () => {
+    selectedCharacter = parseInt(card.dataset.id);
+    localStorage.setItem('batoCharacter', selectedCharacter);
+    updateCardHighlight();
+    setTimeout(goHome, 200);
+  });
+});
+
+// ─── Preview canvases ─────────────────────────────────────────────
+let previewsRendered = false;
+
+function renderPreviewsIfNeeded() {
+  if (previewsRendered) return;
+  previewsRendered = true;
+
+  document.querySelectorAll('.char-preview').forEach(previewCanvas => {
+    const id = parseInt(previewCanvas.closest('.char-card').dataset.id);
+    const pctx = previewCanvas.getContext('2d');
+    const pw = previewCanvas.width;
+    const ph = previewCanvas.height;
+    const charW = 30, charH = 50;
+    const px = (pw - charW) / 2;
+    const py = ph - charH - 10;
+
+    CHARACTERS[id].draw(pctx, px, py, charW, charH);
+  });
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────
+updateCardHighlight();
+loop();

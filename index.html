@@ -18,15 +18,51 @@
     <div id="canvas-container">
       <canvas id="game" width="800" height="300"></canvas>
 
-      <div id="overlay" class="visible">
-        <p id="overlay-title">Ding ang BATO!</p>
-        <p id="overlay-sub">Press SPACE or Tap to Start</p>
+      <!-- HOME SCREEN -->
+      <div id="home-overlay" class="visible">
+        <p id="home-title">Ding ang BATO!</p>
+        <div id="home-buttons">
+          <button class="menu-btn" id="btn-start">&#9654; START</button>
+          <button class="menu-btn" id="btn-choose">&#128100; CHOOSE CHARACTER</button>
+        </div>
       </div>
 
+      <!-- CHARACTER SELECT -->
+      <div id="character-overlay">
+        <p class="screen-title">Choose Your Character</p>
+        <div id="char-grid">
+          <div class="char-card" data-id="0">
+            <canvas class="char-preview" width="80" height="100"></canvas>
+            <p class="char-name">Tao</p>
+          </div>
+          <div class="char-card" data-id="1">
+            <canvas class="char-preview" width="80" height="100"></canvas>
+            <p class="char-name">Mandirigma</p>
+          </div>
+          <div class="char-card" data-id="2">
+            <canvas class="char-preview" width="80" height="100"></canvas>
+            <p class="char-name">Engkanto</p>
+          </div>
+          <div class="char-card" data-id="3">
+            <canvas class="char-preview" width="80" height="100"></canvas>
+            <p class="char-name">Roboto</p>
+          </div>
+          <div class="char-card" data-id="4">
+            <canvas class="char-preview" width="80" height="100"></canvas>
+            <p class="char-name">Aswang</p>
+          </div>
+        </div>
+        <button class="menu-btn secondary" id="btn-back">&#8592; BACK</button>
+      </div>
+
+      <!-- GAME OVER -->
       <div id="gameover-overlay">
         <p id="gameover-title">GAME OVER</p>
         <p id="gameover-score"></p>
-        <p id="gameover-sub">Press SPACE or Tap to Retry</p>
+        <div id="gameover-buttons">
+          <button class="menu-btn" id="btn-retry">&#9654; RETRY</button>
+          <button class="menu-btn secondary" id="btn-home">&#8962; HOME</button>
+        </div>
       </div>
     </div>
   </div>
