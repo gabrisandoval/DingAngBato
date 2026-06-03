@@ -4,8 +4,8 @@ const ctx = canvas.getContext('2d');
 const W = canvas.width;
 const H = canvas.height;
 const GROUND_Y = H - 50;
-const GRAVITY = 0.55;
-const JUMP_FORCE = -13;
+const GRAVITY = 0.62;
+const JUMP_FORCE = -17;
 const BASE_SPEED = 5;
 const SPEED_INCREMENT = 0.4;
 const SCORE_MILESTONE = 500;
@@ -386,7 +386,16 @@ const CHARACTERS = [
   { name: 'Engkanto',   draw: drawEngkanto },
   { name: 'Roboto',     draw: drawRoboto },
   { name: 'Aswang',     draw: drawAswang },
+  { name: 'Bato',       src: 'assets/characters/bato1.png' },
 ];
+
+const charImages = CHARACTERS.map(char => {
+  if (!char.src) return null;
+  const img = new Image();
+  img.src = char.src;
+  img.onload = () => renderPreviewsIfNeeded(true);
+  return img;
+});
 
 let selectedCharacter = parseInt(localStorage.getItem('batoCharacter') || '0');
 
@@ -394,8 +403,8 @@ let selectedCharacter = parseInt(localStorage.getItem('batoCharacter') || '0');
 const player = {
   x: 80,
   y: GROUND_Y,
-  w: 30,
-  h: 50,
+  w: 90,
+  h: 120,
   vy: 0,
   onGround: true,
   jumpsLeft: 2,
@@ -411,6 +420,10 @@ const player = {
   update() {
     this.vy += GRAVITY;
     this.y += this.vy;
+    if (this.y - this.h < 0) {
+      this.y = this.h;
+      this.vy = 0;
+    }
     if (this.y >= GROUND_Y) {
       this.y = GROUND_Y;
       this.vy = 0;
@@ -420,20 +433,33 @@ const player = {
   },
 
   draw() {
-    CHARACTERS[selectedCharacter].draw(ctx, this.x, this.y - this.h, this.w, this.h);
+    const char = CHARACTERS[selectedCharacter];
+    if (char.src) {
+      const img = charImages[selectedCharacter];
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, this.x, this.y - this.h, this.w, this.h);
+      } else {
+        ctx.fillStyle = '#888';
+        ctx.fillRect(this.x, this.y - this.h, this.w, this.h);
+      }
+    } else {
+      char.draw(ctx, this.x, this.y - this.h, this.w, this.h);
+    }
   },
 
   getBounds() {
-    return { x: this.x + 4, y: this.y - this.h + 4, w: this.w - 8, h: this.h - 4 };
+    const mx = this.w * 0.28, my = this.h * 0.22;
+    return { x: this.x + mx, y: this.y - this.h + my, w: this.w - mx * 2, h: this.h - my * 2 };
   }
 };
 
 // ─── Rock ─────────────────────────────────────────────────────────
 const ROCK_SIZES = [
-  { w: 28, h: 32 },
-  { w: 40, h: 48 },
-  { w: 55, h: 60 },
+  { w: 120, h: 160 },
 ];
+
+const obstacleImg = new Image();
+obstacleImg.src = 'assets/obstacles/police.png';
 
 class Rock {
   constructor(speed) {
@@ -443,18 +469,6 @@ class Rock {
     this.x = W + 20;
     this.y = GROUND_Y;
     this.speed = speed;
-    this._buildShape();
-  }
-
-  _buildShape() {
-    this.pts = [];
-    const cx = this.w / 2, cy = this.h / 2;
-    const sides = 7 + (Math.random() * 3 | 0);
-    for (let i = 0; i < sides; i++) {
-      const angle = (i / sides) * Math.PI * 2 - Math.PI / 2;
-      const r = (0.65 + Math.random() * 0.35) * Math.min(cx, cy);
-      this.pts.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r });
-    }
   }
 
   update() { this.x -= this.speed; }
@@ -462,33 +476,17 @@ class Rock {
   offscreen() { return this.x + this.w < 0; }
 
   draw() {
-    const ox = this.x, oy = this.y - this.h;
-    ctx.save();
-    ctx.translate(ox, oy);
-
-    ctx.beginPath();
-    ctx.moveTo(this.pts[0].x, this.pts[0].y);
-    for (let i = 1; i < this.pts.length; i++) ctx.lineTo(this.pts[i].x, this.pts[i].y);
-    ctx.closePath();
-
-    ctx.fillStyle = '#6b6b6b';
-    ctx.fill();
-    ctx.strokeStyle = '#3a3a3a';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.strokeStyle = '#9a9a9a55';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(this.pts[1].x, this.pts[1].y);
-    ctx.lineTo(this.pts[3].x, this.pts[3].y);
-    ctx.stroke();
-
-    ctx.restore();
+    if (obstacleImg.complete && obstacleImg.naturalWidth > 0) {
+      ctx.drawImage(obstacleImg, this.x, this.y - this.h, this.w, this.h);
+    } else {
+      ctx.fillStyle = '#6b6b6b';
+      ctx.fillRect(this.x, this.y - this.h, this.w, this.h);
+    }
   }
 
   getBounds() {
-    return { x: this.x + 4, y: this.y - this.h + 4, w: this.w - 8, h: this.h - 4 };
+    const mx = this.w * 0.28, my = this.h * 0.22;
+    return { x: this.x + mx, y: this.y - this.h + my, w: this.w - mx * 2, h: this.h - my * 2 };
   }
 }
 
@@ -527,10 +525,55 @@ const stars = Array.from({ length: 60 }, () => ({
   speed: 0.2 + Math.random() * 0.3,
 }));
 
+// ─── Background images ────────────────────────────────────────────
+const bgList = window.BG_IMAGES || [];
+const bgImages = bgList.map(name => {
+  const img = new Image();
+  img.src = `assets/backgrounds/${name}`;
+  return img;
+});
+const introImg = new Image();
+introImg.src = 'assets/backgrounds/parcheggio_con_poliziotto.png';
+
+let bgOffset = 0;
+let bgStartIndex = 0;
+let introComplete = false;
+
 function drawBackground(speed) {
+  // Scroll offset
+  if (speed > 0 && bgImages.length > 0) {
+    bgOffset = Math.round(bgOffset - speed);
+    if (bgOffset <= -W) {
+      bgOffset += W;
+      if (!introComplete) {
+        introComplete = true;
+      } else {
+        bgStartIndex = (bgStartIndex + 1) % bgImages.length;
+      }
+    }
+  }
+
   ctx.fillStyle = '#0f0f1a';
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#ffffff88';
+
+  if (bgImages.length > 0) {
+    for (let i = 0; i <= 1; i++) {
+      let drawImg;
+      if (!introComplete) {
+        drawImg = i === 0 ? introImg : bgImages[0];
+      } else {
+        drawImg = bgImages[(bgStartIndex + i) % bgImages.length];
+      }
+      if (drawImg && drawImg.complete && drawImg.naturalWidth > 0) {
+        ctx.drawImage(drawImg, bgOffset + i * W, 0, W, H);
+      }
+    }
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // stelle in sovraimpressione
+  ctx.fillStyle = '#ffffff55';
   stars.forEach(s => {
     s.x -= s.speed * (speed / BASE_SPEED);
     if (s.x < 0) s.x = W;
@@ -633,6 +676,9 @@ function resetGame() {
   spawnTimer = 0;
   spawnInterval = 90;
   lastMilestone = 0;
+  bgOffset = 0;
+  bgStartIndex = 0;
+  introComplete = false;
   player.y = GROUND_Y;
   player.vy = 0;
   player.onGround = true;
@@ -687,8 +733,8 @@ function loop() {
 
     player.update();
 
-    spawnTimer++;
-    if (spawnTimer >= spawnInterval + (Math.random() * 30 | 0)) {
+    if (introComplete) spawnTimer++;
+    if (introComplete && spawnTimer >= spawnInterval + (Math.random() * 30 | 0)) {
       spawnTimer = 0;
       rocks.push(new Rock(speed));
     }
@@ -707,7 +753,6 @@ function loop() {
 
   const bgSpeed = state === 'running' ? speed : (state === 'paused' ? 0 : BASE_SPEED);
   drawBackground(bgSpeed);
-  drawGround(state === 'running' ? speed : 0);
   rocks.forEach(r => r.draw());
   player.draw();
 }
@@ -736,9 +781,10 @@ document.getElementById('btn-start').addEventListener('click', showNameInput);
 document.getElementById('btn-choose').addEventListener('click', showCharacterSelect);
 document.getElementById('btn-scoreboard').addEventListener('click', showScoreboard);
 document.getElementById('btn-back').addEventListener('click', goHome);
-document.getElementById('btn-retry').addEventListener('click', showNameInput);
+document.getElementById('btn-retry').addEventListener('click', startGame);
 document.getElementById('btn-home').addEventListener('click', goHome);
 document.getElementById('btn-resume').addEventListener('click', togglePause);
+document.getElementById('btn-pause-home').addEventListener('click', goHome);
 document.getElementById('btn-play').addEventListener('click', startGame);
 document.getElementById('btn-name-back').addEventListener('click', goHome);
 document.getElementById('btn-score-back').addEventListener('click', goHome);
@@ -765,20 +811,29 @@ document.querySelectorAll('.char-card').forEach(card => {
 // ─── Preview canvases ─────────────────────────────────────────────
 let previewsRendered = false;
 
-function renderPreviewsIfNeeded() {
-  if (previewsRendered) return;
+function renderPreviewsIfNeeded(force = false) {
+  if (previewsRendered && !force) return;
   previewsRendered = true;
 
   document.querySelectorAll('.char-preview').forEach(previewCanvas => {
     const id = parseInt(previewCanvas.closest('.char-card').dataset.id);
+    if (id >= CHARACTERS.length) return;
+    const char = CHARACTERS[id];
     const pctx = previewCanvas.getContext('2d');
-    const pw = previewCanvas.width;
-    const ph = previewCanvas.height;
-    const charW = 30, charH = 50;
-    const px = (pw - charW) / 2;
-    const py = ph - charH - 10;
+    const pw = previewCanvas.width, ph = previewCanvas.height;
+    pctx.clearRect(0, 0, pw, ph);
 
-    CHARACTERS[id].draw(pctx, px, py, charW, charH);
+    if (char.src) {
+      const img = charImages[id];
+      if (img && img.complete && img.naturalWidth > 0) {
+        const scale = Math.min(pw / img.naturalWidth, ph / img.naturalHeight);
+        const dw = img.naturalWidth * scale, dh = img.naturalHeight * scale;
+        pctx.drawImage(img, (pw - dw) / 2, (ph - dh) / 2, dw, dh);
+      }
+    } else {
+      const charW = 30, charH = 50;
+      char.draw(pctx, (pw - charW) / 2, ph - charH - 10, charW, charH);
+    }
   });
 }
 
