@@ -1,0 +1,103 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #1a1a2e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Press Start 2P', monospace;
+  color: #e0c97f;
+}
+
+#game-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+#hud {
+  width: 800px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 0 4px;
+}
+
+#canvas-container {
+  position: relative;
+  width: 800px;
+  height: 300px;
+}
+
+#game {
+  display: block;
+  background: #0f0f1a;
+  border: 3px solid #e0c97f;
+  border-radius: 4px;
+}
+
+/* Overlays */
+#overlay,
+#gameover-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: rgba(15, 15, 26, 0.82);
+  border-radius: 2px;
+}
+
+#overlay.visible,
+#gameover-overlay.visible {
+  display: flex;
+}
+
+#overlay-title {
+  font-size: 28px;
+  color: #e0c97f;
+  text-shadow: 0 0 16px #e0c97f88;
+  letter-spacing: 2px;
+}
+
+#overlay-sub,
+#gameover-sub {
+  font-size: 10px;
+  color: #a89060;
+  animation: blink 1.2s step-end infinite;
+}
+
+#gameover-title {
+  font-size: 24px;
+  color: #e05050;
+  text-shadow: 0 0 12px #e0505088;
+}
+
+#gameover-score {
+  font-size: 11px;
+  color: #e0c97f;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Mobile */
+@media (max-width: 820px) {
+  #hud        { width: 100vw; padding: 0 8px; }
+  #canvas-container,
+  #game       { width: 100vw; height: auto; }
+  #game       { height: 200px; }
+  #overlay-title { font-size: 18px; }
+  #gameover-title { font-size: 16px; }
+}

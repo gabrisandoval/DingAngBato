@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ding ang BATO!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-wrapper">
+    <div id="hud">
+      <span id="score-label">SCORE <span id="score">0</span></span>
+      <span id="hi-label">BEST <span id="hi-score">0</span></span>
+    </div>
+
+    <div id="canvas-container">
+      <canvas id="game" width="800" height="300"></canvas>
+
+      <div id="overlay" class="visible">
+        <p id="overlay-title">Ding ang BATO!</p>
+        <p id="overlay-sub">Press SPACE or Tap to Start</p>
+      </div>
+
+      <div id="gameover-overlay">
+        <p id="gameover-title">GAME OVER</p>
+        <p id="gameover-score"></p>
+        <p id="gameover-sub">Press SPACE or Tap to Retry</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
