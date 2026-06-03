@@ -15,8 +15,19 @@
       <span id="hi-label">BEST <span id="hi-score">0</span></span>
     </div>
 
+    <div id="hud-pause">
+      <button id="btn-pause" title="Pause (P)">&#9646;&#9646;</button>
+    </div>
+
     <div id="canvas-container">
       <canvas id="game" width="800" height="300"></canvas>
+
+      <!-- PAUSE -->
+      <div id="pause-overlay">
+        <p id="pause-title">PAUSED</p>
+        <button class="menu-btn" id="btn-resume">&#9654; RESUME</button>
+        <p id="pause-hint">P or ESC to toggle</p>
+      </div>
 
       <!-- HOME SCREEN -->
       <div id="home-overlay" class="visible">
@@ -24,7 +35,24 @@
         <div id="home-buttons">
           <button class="menu-btn" id="btn-start">&#9654; START</button>
           <button class="menu-btn" id="btn-choose">&#128100; CHOOSE CHARACTER</button>
+          <button class="menu-btn secondary" id="btn-scoreboard">&#127942; SCOREBOARD</button>
         </div>
+      </div>
+
+      <!-- NAME INPUT -->
+      <div id="name-overlay">
+        <p class="screen-title">Enter Your Name</p>
+        <input id="name-input" type="text" maxlength="12"
+               placeholder="PLAYER" autocomplete="off" spellcheck="false" />
+        <button class="menu-btn" id="btn-play">&#9654; PLAY</button>
+        <button class="menu-btn secondary" id="btn-name-back">&#8592; BACK</button>
+      </div>
+
+      <!-- SCOREBOARD -->
+      <div id="scoreboard-overlay">
+        <p class="screen-title">&#127942; SCOREBOARD</p>
+        <ol id="score-list"></ol>
+        <button class="menu-btn secondary" id="btn-score-back">&#8592; BACK</button>
       </div>
 
       <!-- CHARACTER SELECT -->

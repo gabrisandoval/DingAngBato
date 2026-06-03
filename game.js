@@ -15,47 +15,17 @@ const scoreEl      = document.getElementById('score');
 const hiScoreEl    = document.getElementById('hi-score');
 const homeOverlay  = document.getElementById('home-overlay');
 const charOverlay  = document.getElementById('character-overlay');
+const pauseOverlay = document.getElementById('pause-overlay');
+const nameOverlay  = document.getElementById('name-overlay');
+const sbOverlay    = document.getElementById('scoreboard-overlay');
 const gameoverEl   = document.getElementById('gameover-overlay');
 const goScoreEl    = document.getElementById('gameover-score');
+const nameInput    = document.getElementById('name-input');
+const scoreList    = document.getElementById('score-list');
+const btnPause     = document.getElementById('btn-pause');
 
 // ─── Character draw functions ────────────────────────────────────
 
-function drawTao(c, px, py, w, h) {
-  const legOffset = Math.sin(Date.now() / 80) * 6;
-  c.fillStyle = '#5a3e1b';
-  c.fillRect(px + 5,  py + h - 14, 8, 14 + legOffset);
-  c.fillRect(px + 17, py + h - 14, 8, 14 - legOffset);
-
-  c.fillStyle = '#c87941';
-  c.fillRect(px, py + 18, w, h - 22);
-
-  c.fillStyle = '#e8a96a';
-  c.beginPath();
-  c.ellipse(px + w / 2, py + 12, 13, 14, 0, 0, Math.PI * 2);
-  c.fill();
-
-  c.fillStyle = '#1a1a2e';
-  c.beginPath();
-  c.arc(px + w / 2 + 4, py + 10, 3, 0, Math.PI * 2);
-  c.fill();
-  c.fillStyle = '#fff';
-  c.beginPath();
-  c.arc(px + w / 2 + 5, py + 9, 1, 0, Math.PI * 2);
-  c.fill();
-
-  c.strokeStyle = '#c87941';
-  c.lineWidth = 5;
-  c.lineCap = 'round';
-  const armSwing = Math.sin(Date.now() / 80) * 8;
-  c.beginPath();
-  c.moveTo(px + 2, py + 24);
-  c.lineTo(px - 8, py + 32 + armSwing);
-  c.stroke();
-  c.beginPath();
-  c.moveTo(px + w - 2, py + 24);
-  c.lineTo(px + w + 8, py + 32 - armSwing);
-  c.stroke();
-}
 
 function drawMandirigma(c, px, py, w, h) {
   const legOffset = Math.sin(Date.now() / 80) * 6;
@@ -544,12 +514,15 @@ function collides(a, b) {
 let state = 'home';
 let rocks = [];
 let score = 0;
-let hiScore = parseInt(localStorage.getItem('batoHiScore') || '0');
 let speed = BASE_SPEED;
 let spawnTimer = 0;
 let spawnInterval = 90;
 let frameId = null;
 let lastMilestone = 0;
+
+let playerName = localStorage.getItem('batoPlayerName') || '';
+let scores = JSON.parse(localStorage.getItem('batoScores') || '[]');
+let hiScore = scores.length ? scores[0].score : 0;
 
 hiScoreEl.textContent = hiScore;
 
@@ -557,14 +530,57 @@ hiScoreEl.textContent = hiScore;
 function hideAll() {
   homeOverlay.classList.remove('visible');
   charOverlay.classList.remove('visible');
+  pauseOverlay.classList.remove('visible');
+  nameOverlay.classList.remove('visible');
+  sbOverlay.classList.remove('visible');
   gameoverEl.classList.remove('visible');
+}
+
+function togglePause() {
+  if (state === 'running') {
+    state = 'paused';
+    pauseOverlay.classList.add('visible');
+    btnPause.textContent = '▶';
+  } else if (state === 'paused') {
+    state = 'running';
+    pauseOverlay.classList.remove('visible');
+    btnPause.textContent = '⏸';
+  }
 }
 
 function goHome() {
   hideAll();
   state = 'home';
   homeOverlay.classList.add('visible');
+  btnPause.classList.add('hidden');
   renderPreviewsIfNeeded();
+}
+
+function showNameInput() {
+  hideAll();
+  state = 'name_input';
+  nameInput.value = playerName;
+  nameOverlay.classList.add('visible');
+  setTimeout(() => nameInput.focus(), 50);
+}
+
+function showScoreboard() {
+  hideAll();
+  state = 'scoreboard';
+  scoreList.innerHTML = '';
+  const medals = ['#1', '#2', '#3', '#4', '#5'];
+  for (let i = 0; i < 5; i++) {
+    const li = document.createElement('li');
+    if (scores[i]) {
+      li.innerHTML = `<span class="rank">${medals[i]}</span><span class="name">${scores[i].name}</span><span class="pts">${scores[i].score}</span>`;
+      if (i < 3) li.classList.add(`rank-${i + 1}`);
+    } else {
+      li.classList.add('empty');
+      li.textContent = '- - -';
+    }
+    scoreList.appendChild(li);
+  }
+  sbOverlay.classList.add('visible');
 }
 
 function showCharacterSelect() {
@@ -589,21 +605,31 @@ function resetGame() {
 }
 
 function startGame() {
+  playerName = nameInput.value.trim().toUpperCase() || 'PLAYER';
+  localStorage.setItem('batoPlayerName', playerName);
   resetGame();
   hideAll();
   state = 'running';
+  btnPause.classList.remove('hidden');
+  btnPause.textContent = '⏸';
   if (frameId) cancelAnimationFrame(frameId);
   loop();
 }
 
+function saveScore(name, sc) {
+  scores.push({ name, score: sc });
+  scores.sort((a, b) => b.score - a.score);
+  scores = scores.slice(0, 5);
+  localStorage.setItem('batoScores', JSON.stringify(scores));
+  hiScore = scores[0].score;
+  hiScoreEl.textContent = hiScore;
+}
+
 function endGame() {
   state = 'over';
-  if (score > hiScore) {
-    hiScore = score;
-    localStorage.setItem('batoHiScore', hiScore);
-    hiScoreEl.textContent = hiScore;
-  }
-  goScoreEl.textContent = `Score: ${score}   Best: ${hiScore}`;
+  btnPause.classList.add('hidden');
+  saveScore(playerName, score);
+  goScoreEl.textContent = `${playerName}: ${score}   BEST: ${hiScore}`;
   gameoverEl.classList.add('visible');
 }
 
@@ -643,7 +669,8 @@ function loop() {
     }
   }
 
-  drawBackground(state === 'running' ? speed : BASE_SPEED);
+  const bgSpeed = state === 'running' ? speed : (state === 'paused' ? 0 : BASE_SPEED);
+  drawBackground(bgSpeed);
   drawGround(state === 'running' ? speed : 0);
   rocks.forEach(r => r.draw());
   player.draw();
@@ -654,8 +681,13 @@ document.addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     e.preventDefault();
     if (state === 'running') player.jump();
+    else if (state === 'paused') togglePause();
   }
-  if (e.code === 'Escape' && state === 'character_select') goHome();
+  if (e.code === 'KeyP' && (state === 'running' || state === 'paused')) togglePause();
+  if (e.code === 'Escape') {
+    if (state === 'character_select' || state === 'name_input' || state === 'scoreboard') goHome();
+    else if (state === 'running' || state === 'paused') togglePause();
+  }
 });
 
 canvas.addEventListener('touchstart', e => {
@@ -664,11 +696,19 @@ canvas.addEventListener('touchstart', e => {
 }, { passive: false });
 
 // ─── Button events ────────────────────────────────────────────────
-document.getElementById('btn-start').addEventListener('click', startGame);
+document.getElementById('btn-start').addEventListener('click', showNameInput);
 document.getElementById('btn-choose').addEventListener('click', showCharacterSelect);
+document.getElementById('btn-scoreboard').addEventListener('click', showScoreboard);
 document.getElementById('btn-back').addEventListener('click', goHome);
-document.getElementById('btn-retry').addEventListener('click', startGame);
+document.getElementById('btn-retry').addEventListener('click', showNameInput);
 document.getElementById('btn-home').addEventListener('click', goHome);
+document.getElementById('btn-resume').addEventListener('click', togglePause);
+document.getElementById('btn-play').addEventListener('click', startGame);
+document.getElementById('btn-name-back').addEventListener('click', goHome);
+document.getElementById('btn-score-back').addEventListener('click', goHome);
+nameInput.addEventListener('keydown', e => { if (e.code === 'Enter') startGame(); });
+btnPause.addEventListener('click', togglePause);
+btnPause.classList.add('hidden');
 
 // ─── Character selection cards ────────────────────────────────────
 function updateCardHighlight() {

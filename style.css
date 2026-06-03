@@ -30,6 +30,35 @@ body {
   padding: 0 4px;
 }
 
+#hud-pause {
+  width: 800px;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -8px;
+}
+
+#btn-pause {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #a89060;
+  background: transparent;
+  border: 1px solid #3a3a5a;
+  padding: 4px 10px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+#btn-pause:hover {
+  color: #e0c97f;
+  border-color: #e0c97f;
+}
+
+#btn-pause.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 #canvas-container {
   position: relative;
   width: 800px;
@@ -44,6 +73,9 @@ body {
 }
 
 /* ── Overlays base ───────────────────────────────────────────── */
+#name-overlay,
+#scoreboard-overlay,
+#pause-overlay,
 #home-overlay,
 #character-overlay,
 #gameover-overlay {
@@ -59,10 +91,74 @@ body {
   padding: 20px;
 }
 
+#name-overlay.visible,
+#scoreboard-overlay.visible,
+#pause-overlay.visible,
 #home-overlay.visible,
 #character-overlay.visible,
 #gameover-overlay.visible {
   display: flex;
+}
+
+/* ── Name Input ──────────────────────────────────────────────── */
+#name-input {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  text-align: center;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #e0c97f;
+  color: #e0c97f;
+  padding: 8px 4px;
+  outline: none;
+  width: 240px;
+  letter-spacing: 3px;
+  caret-color: #e0c97f;
+}
+
+#name-input::placeholder { color: #4a4030; }
+
+/* ── Scoreboard ──────────────────────────────────────────────── */
+#score-list {
+  list-style: none;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#score-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9px;
+  padding: 7px 14px;
+  border: 1px solid #3a3a5a;
+  color: #a89060;
+  letter-spacing: 1px;
+}
+
+#score-list li .rank   { width: 30px; }
+#score-list li .name   { flex: 1; padding: 0 8px; }
+#score-list li .pts    { text-align: right; }
+
+#score-list li.rank-1  { border-color: #e0c97f; color: #e0c97f; }
+#score-list li.rank-2  { border-color: #b0b0b0; color: #c8c8c8; }
+#score-list li.rank-3  { border-color: #c87941; color: #c87941; }
+#score-list li.empty   { color: #3a3a5a; border-color: #22223a; justify-content: center; }
+
+/* ── Pause ───────────────────────────────────────────────────── */
+#pause-title {
+  font-size: 22px;
+  color: #e0c97f;
+  text-shadow: 0 0 16px #e0c97faa;
+  letter-spacing: 4px;
+}
+
+#pause-hint {
+  font-size: 8px;
+  color: #5a5040;
 }
 
 /* ── Home ────────────────────────────────────────────────────── */
