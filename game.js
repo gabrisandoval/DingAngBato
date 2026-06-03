@@ -26,6 +26,42 @@ const btnPause     = document.getElementById('btn-pause');
 
 // ─── Character draw functions ────────────────────────────────────
 
+function drawTao(c, px, py, w, h) {
+  const legOffset = Math.sin(Date.now() / 80) * 6;
+  c.fillStyle = '#5a3e1b';
+  c.fillRect(px + 5,  py + h - 14, 8, 14 + legOffset);
+  c.fillRect(px + 17, py + h - 14, 8, 14 - legOffset);
+
+  c.fillStyle = '#c87941';
+  c.fillRect(px, py + 18, w, h - 22);
+
+  c.fillStyle = '#e8a96a';
+  c.beginPath();
+  c.ellipse(px + w / 2, py + 12, 13, 14, 0, 0, Math.PI * 2);
+  c.fill();
+
+  c.fillStyle = '#1a1a2e';
+  c.beginPath();
+  c.arc(px + w / 2 + 4, py + 10, 3, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = '#fff';
+  c.beginPath();
+  c.arc(px + w / 2 + 5, py + 9, 1, 0, Math.PI * 2);
+  c.fill();
+
+  c.strokeStyle = '#c87941';
+  c.lineWidth = 5;
+  c.lineCap = 'round';
+  const armSwing = Math.sin(Date.now() / 80) * 8;
+  c.beginPath();
+  c.moveTo(px + 2, py + 24);
+  c.lineTo(px - 8, py + 32 + armSwing);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(px + w - 2, py + 24);
+  c.lineTo(px + w + 8, py + 32 - armSwing);
+  c.stroke();
+}
 
 function drawMandirigma(c, px, py, w, h) {
   const legOffset = Math.sin(Date.now() / 80) * 6;

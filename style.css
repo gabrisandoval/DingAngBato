@@ -22,7 +22,7 @@ body {
 }
 
 #hud {
-  width: 800px;
+  width: 1100px;
   display: flex;
   justify-content: space-between;
   font-size: 12px;
@@ -31,7 +31,7 @@ body {
 }
 
 #hud-pause {
-  width: 800px;
+  width: 1100px;
   display: flex;
   justify-content: flex-end;
   margin-top: -8px;
@@ -61,8 +61,8 @@ body {
 
 #canvas-container {
   position: relative;
-  width: 800px;
-  height: 300px;
+  width: 1100px;
+  height: 420px;
 }
 
 #game {
